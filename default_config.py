@@ -15,6 +15,8 @@ FLASKCACHINGDEFAULTTIMEOUT = 900
 FLASKCACHINGDIR = '/tmp/flask-caching-dir'
 API_URL_PLOT = "http://127.0.0.1:5000/plot"
 
+AUTH_KEY = 'Secret key' # Same key as in web application
+
 HTTP_HOST = '127.0.0.1'
 HTTP_PORT = '5000'
 PRODUCTION = True
