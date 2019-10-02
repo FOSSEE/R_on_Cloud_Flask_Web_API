@@ -57,22 +57,23 @@ def get_data():
                                               stderr=subprocess.PIPE)
             ret_data, err = processed_data.communicate()
             is_plot = str(os.path.isfile(plot_path))
-            plot_path_req = (API_URL_PLOT,
-                             '?user_id=' + user_id,
+            plot_path_req = (API_URL_PLOT +
+                             '?user_id=' + user_id +
                              '&R_file_id=' + R_file_id)
             response_body = {
                 "data": ret_data.decode("utf-8"),
                 "error": err.decode("utf-8"),
                 "is_plot": is_plot,
-                "plot_path_req": plot_path_req
+                "plot_path_req": plot_path_req,
+                "status": "200"
             }
         else:
             response_body = {
-                "auth_error": "Invalid authentication request",
+                "status": "Invalid authentication request",
             }
     else:
         response_body = {
-            "auth_error": "400",
+            "status": "400",
         }
     result = jsonify(response_body)
     return result
@@ -92,14 +93,24 @@ def get_plot():
 
 @app.route('/upload-temp-file', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
-        f = request.files['file']
-        user_id = request.form.get('user_id')
-        user_dir = TEMP_DIR + user_id
-        uploaded_file = secure_filename(f.filename)
-        f.save(os.path.join(user_dir, uploaded_file))
-        print("done")
-        return 'file uploaded successfully'
+    headers = request.headers
+    auth = headers.get("X-Api-Key")
+    if auth == AUTH_KEY:
+        if request.method == 'POST':
+            f = request.files['file']
+            user_id = request.form.get('user_id')
+            user_dir = TEMP_DIR + user_id
+            if not os.path.exists(user_dir):
+                os.makedirs(user_dir)
+            uploaded_file = secure_filename(f.filename)
+            f.save(os.path.join(user_dir, uploaded_file))
+            print("done")
+            return 'file uploaded successfully'
+        else:
+            print("Post request fail")
+    else:
+        print("Wrong authentication key")
+        return jsonify({"message": "ERROR: Unauthorized"}), 401
 
 
 if __name__ == '__main__':
