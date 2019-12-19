@@ -3,6 +3,7 @@ import subprocess
 import flask
 from flask import send_file
 from flask import Flask, url_for, jsonify, request
+from flask_api import status
 from werkzeug import secure_filename
 import json
 import os
@@ -18,14 +19,19 @@ if not os.path.exists(TEMP_DIR):
 app = Flask(__name__)
 
 
+# @app.route('/')
+# def api_root():
+#     headers = request.headers
+#     auth = headers.get("X-Api-Key")
+#     if auth == AUTH_KEY:
+#         return jsonify({"message": "OK: Authorized"}), 200
+#     else:
+#         return jsonify({"message": "ERROR: Unauthorized"}), 401
+
 @app.route('/')
 def api_root():
-    headers = request.headers
-    auth = headers.get("X-Api-Key")
-    if auth == AUTH_KEY:
-        return jsonify({"message": "OK: Authorized"}), 200
-    else:
-        return jsonify({"message": "ERROR: Unauthorized"}), 401
+    content = {'status': status.HTTP_200_OK}
+    return content, status.HTTP_200_OK
 
 
 @app.route('/rscript', methods=['GET', 'POST'])
